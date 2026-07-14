@@ -1,0 +1,61 @@
+{
+  "name": "claude-code-beam",
+  "version": "1.0.0",
+  "description": "Beam Claude Code chat sessions between two PCs over P2P - no IP, no port forwarding, just a short code.",
+  "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/qqwxe/claude-code-beam.git"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis",
+    "release": "electron-builder --win nsis --publish always"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^26.15.3",
+    "flag-icons": "^7.5.0",
+    "peerjs": "^1.5.5"
+  },
+  "allowScripts": {
+    "electron@33.4.11": true,
+    "electron-winstaller@5.4.0": true
+  },
+  "dependencies": {
+    "archiver": "^7.0.1",
+    "extract-zip": "^2.0.1",
+    "electron-updater": "^6.3.9"
+  },
+  "build": {
+    "appId": "com.qqwxe.claude-code-beam",
+    "productName": "Claude Code Beam",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*",
+      "build/icon.*",
+      "!renderer/vendor/flag-icons/flags/**/README.md"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "ClaudeCodeBeam-Setup-${version}.exe"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "qqwxe",
+      "repo": "claude-code-beam"
+    }
+  }
+}

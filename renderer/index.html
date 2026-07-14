@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Claude Code Beam</title>
+  <link rel="stylesheet" href="vendor/flag-icons/css/flag-icons.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="titlebar">
+    <div class="titlebar-drag">
+      <span class="titlebar-title">Claude Code Beam</span>
+    </div>
+    <div class="window-controls">
+      <button class="win-btn" id="win-minimize" title="Свернуть">
+        <svg viewBox="0 0 12 12" width="12" height="12"><rect x="1" y="5.5" width="10" height="1.4" fill="currentColor"/></svg>
+      </button>
+      <button class="win-btn" id="win-maximize" title="Развернуть">
+        <svg viewBox="0 0 12 12" width="11" height="11"><rect x="1.2" y="1.2" width="9.6" height="9.6" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+      </button>
+      <button class="win-btn win-close" id="win-close" title="Закрыть">
+        <svg viewBox="0 0 12 12" width="12" height="12"><path d="M1.5 1.5 L10.5 10.5 M10.5 1.5 L1.5 10.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <header class="topbar">
+    <div class="searchbar">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="7"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input type="text" id="search" data-i18n-placeholder="searchPlaceholder" />
+    </div>
+    <button class="icon-btn" id="tutorial-replay-btn" data-i18n-title="replayTutorialTitle">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M9.5 9a2.5 2.5 0 0 1 4.9.7c0 1.7-2.4 2-2.4 3.6"></path>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      </svg>
+    </button>
+    <button class="icon-btn" id="refresh-btn" data-i18n-title="refreshTitle">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <polyline points="1 20 1 14 7 14"></polyline>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+      </svg>
+    </button>
+  </header>
+
+  <div class="update-banner hidden" id="update-banner">
+    <span class="update-banner-text" id="update-banner-text"></span>
+    <div class="update-banner-actions">
+      <button class="secondary" id="update-later-btn" data-i18n="updateLaterBtn">Позже</button>
+      <button id="update-action-btn" data-i18n="updateNowBtn">Обновить</button>
+    </div>
+  </div>
+
+  <main class="content">
+    <section class="panel active split" id="panel-send">
+      <div class="col col-list">
+        <div class="card list-card">
+          <h3 data-i18n="mySessions">Мои сессии</h3>
+          <div id="session-list" class="scroll-area">
+            <div class="empty-hint" data-i18n="loadingSessions">Загрузка сессий...</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col col-side">
+        <div class="card" id="device-card">
+          <h3 data-i18n="devicesTitle">Устройства рядом (тот же Wi-Fi)</h3>
+          <div id="device-list" class="device-list scroll-area-small">
+            <div class="empty-hint" style="padding:14px 0" data-i18n="devicesSearching">Ищем устройства в локальной сети...</div>
+          </div>
+        </div>
+
+        <div class="card" id="send-target-card">
+          <h3 data-i18n="whereToSend">Куда отправить</h3>
+          <div class="row">
+            <input type="text" id="target-code" data-i18n-placeholder="targetCodePlaceholder" style="flex:2" />
+            <button id="send-btn" data-i18n="sendBtn">Отправить →</button>
+          </div>
+          <div class="footer-actions" style="margin-top:10px">
+            <span class="count-badge" id="selected-count">Выбрано: 0</span>
+          </div>
+        </div>
+
+        <div class="card log-card">
+          <h3 data-i18n="sendLogTitle">Журнал отправки</h3>
+          <div class="log-box" id="send-log"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel split" id="panel-receive">
+      <div class="col col-list">
+        <div class="card" id="receive-status-card">
+          <h3><span class="status-dot" id="server-dot"></span><span data-i18n="receiveStatusTitle">Статус приёма</span></h3>
+          <div class="row">
+            <button id="server-toggle-btn" data-i18n="showCodeBtn">Показать мой код</button>
+          </div>
+        </div>
+
+        <div class="card" id="pin-card" style="display:none">
+          <h3 data-i18n="pinCardTitle">Дайте этот код отправителю (на другом ПК)</h3>
+          <div class="pin-display" id="pin-value">--------</div>
+        </div>
+      </div>
+
+      <div class="col col-side">
+        <div class="card log-card">
+          <h3 data-i18n="incomingLogTitle">Журнал входящих передач</h3>
+          <div class="log-box" id="incoming-log"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <span class="nav-indicator"></span>
+    <div class="tab active" data-tab="send">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="22" y1="2" x2="11" y2="13"></line>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+      </svg>
+      <span data-i18n="navSend">Отправить</span>
+    </div>
+    <div class="tab" data-tab="receive">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+      <span data-i18n="navReceive">Принять</span>
+    </div>
+  </nav>
+
+  <div class="modal-overlay hidden" id="lang-overlay">
+    <div class="modal-card lang-modal">
+      <h2 data-i18n="langModalTitle">Выберите язык</h2>
+      <input type="text" id="lang-search" class="lang-search-input" data-i18n-placeholder="langSearchPlaceholder" />
+      <div id="lang-grid" class="lang-grid"></div>
+      <div class="lang-fallback-note" data-i18n="langFallbackNote">
+        Если для языка ещё нет полного перевода, покажем интерфейс на английском.
+      </div>
+    </div>
+  </div>
+
+  <div class="tutorial-layer hidden" id="tutorial-overlay">
+    <div class="tutorial-blocker"></div>
+    <div class="tutorial-spotlight" id="tutorial-spotlight"></div>
+    <div class="tutorial-dialog card" id="tutorial-dialog">
+      <div class="tutorial-progress" id="tutorial-progress"></div>
+      <div class="tutorial-text" id="tutorial-text"></div>
+      <div class="tutorial-actions">
+        <button class="secondary" id="tutorial-skip" data-i18n="tutorialSkipAll">Пропустить всё</button>
+        <button id="tutorial-next" data-i18n="tutorialNext">Далее</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay hidden" id="project-confirm-overlay">
+    <div class="modal-card" style="width:min(560px, 90vw)">
+      <h2 data-i18n="projectConfirmTitle">Передать вместе с папкой проекта?</h2>
+      <p class="project-confirm-hint" data-i18n="projectConfirmHint">
+        Эти сессии связаны с папками проектов на этом ПК. Можно передать код вместе с папкой, или только сам чат.
+      </p>
+      <div id="project-confirm-list" class="project-confirm-list"></div>
+      <div class="row" style="justify-content:flex-end; margin-top:16px; gap:10px">
+        <button class="secondary" id="project-confirm-cancel" data-i18n="projectConfirmCancel">Отмена</button>
+        <button id="project-confirm-continue" data-i18n="projectConfirmContinue">Продолжить →</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="vendor/peerjs.min.js"></script>
+  <script src="window-controls.js"></script>
+  <script src="project-confirm.js"></script>
+  <script src="languages.js"></script>
+  <script src="i18n.js"></script>
+  <script src="onboarding.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>
